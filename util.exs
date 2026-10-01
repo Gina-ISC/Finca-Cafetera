@@ -20,6 +20,7 @@ defmodule Util do
     leer_con_parser(mensaje, &Float.parse/1, 0.0)
   end
 
+  
   # Funcion auxiliar que captura el texto, aplica la funcion de parseo
     defp leer_con_parser(mensaje, funcion, valor_defecto) do
     valor =

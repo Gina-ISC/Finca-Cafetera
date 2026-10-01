@@ -257,6 +257,22 @@ defmodule Reportes do
     |> Map.new()
   end
 
+  def desprendible(recolector, liquidacion, detalle) do
+    dias =
+      detalle
+      |> Enum.map(fn d ->
+        "Dia #{d.dia}: #{formatear(d.kilos)} kg | pesajes $#{formatear(d.valor)} | bonificacion $#{formatear(d.bonificacion)}"
+      end)
+      |> Enum.join("\n")
+
+    "Desprendible de pago - #{recolector.nombre} (#{recolector.codigo})\n" <>
+      dias <>
+      "\nSuma de pesajes: $#{formatear(liquidacion.valor_pesajes)}\n" <>
+      "Bonificaciones: $#{formatear(liquidacion.bonificacion)}\n" <>
+      "Alimentacion (#{liquidacion.dias_trabajados} dias): -$#{formatear(liquidacion.descuento_alimentacion)}\n" <>
+      "Neto a pagar: $#{formatear(liquidacion.neto)}"
+  end
+
   # Auxiliares privadas
 
   defp ganadores_del_dia(dia, pesajes_validos, recolectores) do

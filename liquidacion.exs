@@ -55,6 +55,7 @@ defmodule Liquidacion do
       valor_pesajes: valor_pesajes,
       bonificacion: bonificacion,
       descuento_alimentacion: descuento,
+      bruto: valor_pesajes + bonificacion,
       neto: valor_pesajes + bonificacion - descuento
     }
   end
@@ -78,7 +79,7 @@ defmodule Liquidacion do
   defp factor_calidad(_verdes), do: @factor_descuento_alto
 
   # Suma los kilos válidos de cada día y paga la bonificación fija por cada dia
-  
+
   defp calcular_bonificacion(pesajes_del_recolector) do
     dias_con_bonificacion =
       pesajes_del_recolector
@@ -93,4 +94,20 @@ defmodule Liquidacion do
     do: dias_trabajados * @descuento_alimentacion_por_dia
 
   defp calcular_descuento_alimentacion(false, _dias_trabajados), do: @sin_valor
+
+  def detalle_por_dia(pesajes_del_recolector) do
+    pesajes_del_recolector
+    |> Enum.group_by(& &1.dia)
+    |> Enum.map(fn {dia, pesajes} ->
+      kilos = pesajes |> Enum.map(& &1.kilos) |> Enum.sum()
+      valor = pesajes |> Enum.map(&valor_pesaje/1) |> Enum.sum()
+      %{dia: dia, kilos: kilos, valor: valor, bonificacion: calcular_bonificacion_dia(kilos)}
+    end)
+    |> Enum.sort_by(& &1.dia)
+  end
+
+  defp calcular_bonificacion_dia(kilos) when kilos >= @kilos_para_bonificacion,
+    do: @bonificacion_diaria
+
+  defp calcular_bonificacion_dia(_kilos), do: 0.0
 end
